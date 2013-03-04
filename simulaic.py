@@ -51,6 +51,14 @@ if args.height != None and args.width != None:
     WIDTH = args.width
     NEW_SIZE = (WIDTH, HEIGHT)
     print 'Resizing images to ' + str(WIDTH) + 'x' + str(HEIGHT)
+elif args.height != None and args.width == None:
+    # resize for height only
+    DO_RESIZE = True
+    HEIGHT = args.height
+elif args.height == None and args.width != None:
+    # resize for width only
+    DO_RESIZE = True
+    WIDTH = args.width
 
 # add the first NUMCOLORS colors from COLORS to PALETTE
 for colornum in range(NUMCOLORS):
