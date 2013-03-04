@@ -31,7 +31,8 @@ parser.add_argument('image', nargs='*',
                     help='The image or images to be converted.')
 parser.add_argument('-c', '--colors', type=int,
                     help='Number of colors to use in converting the ' + 
-                    ' image. Maximum (default) is ' + str(len(COLORS)) + '.')
+                         ' image. Maximum (default) is ' + str(len(COLORS)) + 
+                         '.')
 parser.add_argument('-w', '--width', type=int,
                     help='Width of the output image, in pixels.')
 parser.add_argument('-t', '--height', type=int,
