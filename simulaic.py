@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
+'''Converts an image to a fixed color palette and optionally a fixed size.'''
+
 # credit goes to http://stackoverflow.com/a/237193/254187
 #            and http://stackoverflow.com/a/237747/254187
 
 import Image
 import argparse
-import sys
 import os
 
 # contains the target rasterized color values for the image
@@ -25,31 +26,31 @@ COLORS = [
     [255, 255, 0  ]  # yellow
 ]
 
-parser = argparse.ArgumentParser(description='Convert an image to a new ' + 
+PARSER = argparse.ArgumentParser(description='Convert an image to a new ' + 
                                              'size and color fidelity.')
-parser.add_argument('image', nargs='*', 
+PARSER.add_argument('image', nargs='*', 
                     help='The image or images to be converted.')
-parser.add_argument('-c', '--colors', type=int,
+PARSER.add_argument('-c', '--colors', type=int,
                     help='Number of colors to use in converting the ' + 
                          ' image. Maximum (default) is ' + str(len(COLORS)) + 
                          '.')
-parser.add_argument('-w', '--width', type=int,
+PARSER.add_argument('-w', '--width', type=int,
                     help='Width of the output image, in pixels.')
-parser.add_argument('-t', '--height', type=int,
+PARSER.add_argument('-t', '--height', type=int,
                     help='Height of the output image, in pixels.')
 
-args = parser.parse_args()
+ARGS = PARSER.parse_args()
 
-if args.colors != None:
-    NUMCOLORS = args.colors
+if ARGS.colors != None:
+    NUMCOLORS = ARGS.colors
 else:
     NUMCOLORS = len(COLORS)
 
 DO_RESIZE = False
-if args.height != None and args.width != None:
+if ARGS.height != None and ARGS.width != None:
     DO_RESIZE = True
-    HEIGHT = args.height
-    WIDTH = args.width
+    HEIGHT = ARGS.height
+    WIDTH = ARGS.width
     NEW_SIZE = (WIDTH, HEIGHT)
     print 'Resizing images to ' + str(WIDTH) + 'x' + str(HEIGHT)
 
@@ -68,7 +69,7 @@ for colornum in range(NUMCOLORS):
 if len(PALETTE) < 768:
     PALETTE += [0] * (768 - len(PALETTE))
 
-for imgpath in args.image:
+for imgpath in ARGS.image:
     dirname, filename = os.path.split(imgpath)
     name, ext = os.path.splitext(filename)
     newpathname = os.path.join(dirname, "conv-%s.png" % name)
