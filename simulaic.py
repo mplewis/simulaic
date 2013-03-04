@@ -44,7 +44,6 @@ for colornum in range(NUMCOLORS):
 if len(PALETTE) < 768:
     PALETTE += [0] * (768 - len(PALETTE))
 
-
 for imgfn in sys.argv[1:]:
     dirname, filename = os.path.split(imgfn)
     name, ext = os.path.splitext(filename)
