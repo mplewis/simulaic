@@ -79,11 +79,14 @@ for imgpath in args.image:
     pimage.putpalette(PALETTE)
 
     # open the source image
-    image = Image.open(imgpath)
-    image = image.convert("RGB")
+    imagef = Image.open(imgpath)
+    imagec = imagef.convert("RGB")
 
+    # resize it to our target size
+    imager = imagec.resize(NEW_SIZE, Image.ANTIALIAS)
+    
     # quantize it using our palette image
-    imagep = image.quantize(palette=pimage)
+    imagep = imager.quantize(palette=pimage)
 
     # save
     imagep.save(newpathname)
