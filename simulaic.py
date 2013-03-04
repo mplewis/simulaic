@@ -31,8 +31,7 @@ COLORS = [
 
 PARSER = argparse.ArgumentParser(description='Convert an image to a new ' + 
                                              'size and color fidelity.')
-PARSER.add_argument('image', nargs='*', 
-                    help='The image or images to be converted.')
+PARSER.add_argument('image', help='The image to be converted.')
 PARSER.add_argument('-c', '--colors', type=int,
                     help='Number of colors to use in converting the ' + 
                          ' image. Maximum (default) is ' + str(len(COLORS)) + 
@@ -43,6 +42,8 @@ PARSER.add_argument('-t', '--height', type=int,
                     help='Height of the output image, in pixels.')
 
 ARGS = PARSER.parse_args()
+
+IMGPATH = ARGS.image
 
 if ARGS.colors != None:
     NUMCOLORS = ARGS.colors
@@ -55,7 +56,6 @@ if ARGS.height != None and ARGS.width != None:
     HEIGHT = ARGS.height
     WIDTH = ARGS.width
     NEW_SIZE = (WIDTH, HEIGHT)
-    print 'Resizing images to ' + str(WIDTH) + 'x' + str(HEIGHT)
 
 # add the first NUMCOLORS colors from COLORS to PALETTE
 for colornum in range(NUMCOLORS):
@@ -72,26 +72,27 @@ for colornum in range(NUMCOLORS):
 if len(PALETTE) < 768:
     PALETTE += [0] * (768 - len(PALETTE))
 
-for imgpath in ARGS.image:
-    dirname, filename = os.path.split(imgpath)
-    name, ext = os.path.splitext(filename)
-    newpathname = os.path.join(dirname, "conv-%s.png" % name)
-    print('Processing ' + imgpath + ' to ' + str(NUMCOLORS) + ' colors as ' +
-          newpathname)
+dirname, filename = os.path.split(IMGPATH)
+name, ext = os.path.splitext(filename)
+newpathname = os.path.join(dirname, "conv-%s.png" % name)
+print('Processing ' + IMGPATH + ' to ' + str(NUMCOLORS) + ' colors as ' +
+      newpathname)
 
-    # a palette image to use for quant
-    pimage = Image.new("P", (1, 1), 0)
-    pimage.putpalette(PALETTE)
+# a palette image to use for quant
+pimage = Image.new("P", (1, 1), 0)
+pimage.putpalette(PALETTE)
 
-    # open the source image
-    imagef = Image.open(imgpath)
-    imagec = imagef.convert("RGB")
+# open the source image
+imagef = Image.open(IMGPATH)
+imagec = imagef.convert("RGB")
 
-    # resize it to our target size
-    imager = imagec.resize(NEW_SIZE, Image.ANTIALIAS)
-    
-    # quantize it using our palette image
-    imagep = imager.quantize(palette=pimage)
+# resize it to our target size
+if DO_RESIZE:
+    print 'Resizing image to ' + str(WIDTH) + 'x' + str(HEIGHT)
+    imagec = imagec.resize(NEW_SIZE, Image.ANTIALIAS)
 
-    # save
-    imagep.save(newpathname)
+# quantize it using our palette image
+imagep = imagec.quantize(palette=pimage)
+
+# save
+imagep.save(newpathname)
