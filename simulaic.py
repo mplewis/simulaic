@@ -90,8 +90,6 @@ else:
 newpathname = os.path.join(dirname, 'conv-' + name + '-' + SELECTED_THEME +
                            '.png')
 
-print newpathname
-
 # use the palette we defined earlier
 pimage = Image.new("P", (1, 1), 0)
 pimage.putpalette(PALETTE)
