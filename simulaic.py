@@ -8,6 +8,7 @@
 import Image
 import argparse
 import os
+import sys
 
 # THEMES is the list of color palettes that can be selected for the output image
 # it's stored in themes.py
@@ -27,7 +28,8 @@ AVAILABLE_THEMES_STR = ', '.join(AVAILABLE_THEMES)
 # set up the parser
 PARSER = argparse.ArgumentParser(description='Convert an image to a new ' + 
                                              'size and color fidelity.')
-PARSER.add_argument('image', help='The image to be converted.')
+PARSER.add_argument('image', nargs='?', help='The image to be converted. Cannot be used with --demo.')
+PARSER.add_argument('--demo', action='store_true', help='Processes a demonstration image. Cannot be used with an image file.')
 PARSER.add_argument('-t', '--theme',
                     help='The set of colors to use in the rendered image. ' + 
                          'Themes available: ' + AVAILABLE_THEMES_STR + '; ' +
@@ -41,6 +43,14 @@ PARSER.add_argument('-e', '--height', type=int,
 ARGS = PARSER.parse_args()
 
 IMGPATH = ARGS.image
+DEMO_MODE = ARGS.demo
+
+if IMGPATH == None and DEMO_MODE == False:
+    print 'ERROR: You must either specify an image to process or use --demo to process a demonstration image.'
+    sys.exit()
+elif IMGPATH != None and DEMO_MODE == True:
+    print 'ERROR: Cannot process an image and run in demonstration mode. Please specify either --demo or provide a demonstration image, but not both.'
+    sys.exit()
 
 # use default theme if none selected
 if ARGS.theme != None:
@@ -67,20 +77,36 @@ if len(PALETTE) < 768:
     PALETTE += [0] * (768 - len(PALETTE))
 
 # split the input name apart into its useful elements
-dirname, filename = os.path.split(IMGPATH)
-name, ext = os.path.splitext(filename)
+if DEMO_MODE == True:
+    dirname = os.getcwd()
+    name = 'demo'
+    ext = 'jpg'
+else:
+    dirname, filename = os.path.split(IMGPATH)
+    name, ext = os.path.splitext(filename)
 # output naming convention:
 #     input file:  "mypic.jpg", filter: BW
 #     output file: "conv-mypic-BW.jpg"
 newpathname = os.path.join(dirname, 'conv-' + name + '-' + SELECTED_THEME +
                            '.png')
 
+print newpathname
+
 # use the palette we defined earlier
 pimage = Image.new("P", (1, 1), 0)
 pimage.putpalette(PALETTE)
 
-# open the source image
-imagef = Image.open(IMGPATH)
+# open the source image, either from demo data or from the file path
+if DEMO_MODE == True:
+    import base64
+    import StringIO
+    with open('demo.b64', 'r') as f:
+        b64_demo_data = f.read()
+    binary_demo_data = base64.b64decode(b64_demo_data)
+    imagef = Image.open(StringIO.StringIO(binary_demo_data))
+else:
+    imagef = Image.open(IMGPATH)
+
 imagec = imagef.convert("RGB")
 
 # resize it to our target size, if requested
@@ -88,7 +114,7 @@ if DO_RESIZE:
     print 'Resizing image to ' + str(WIDTH) + 'x' + str(HEIGHT)
     imagec = imagec.resize(NEW_SIZE, Image.ANTIALIAS)
 
-print('Processing ' + IMGPATH + ' to ' + SELECTED_THEME + ' as ' +
+print('Processing ' + name + '.' + ext + ' to ' + SELECTED_THEME + ' as ' +
       newpathname)
 
 # quantize it using our palette image
